@@ -1,3 +1,13 @@
+## Getting Started
+
+1. Save your logo to `assets/images/logo.png`
+2. Open `index.html` in a modern browser
+3. Upload an Excel file or use demo data
+4. Toggle **Graph Style: Color / B&W**
+5. Click **Print**, **Export PNG**, or **Export PDF**
+
+## License
+
 MIT License
 
 Copyright (c) 2026 mcpvip1
