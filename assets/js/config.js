@@ -36,8 +36,9 @@ const state = {
 
 /**
  * Helper — checks whether dark mode is active right now.
- * Used by Chart.js to pick the correct axis text/grid colors.
+ * Used by Chart.js to pick the correct axis text colors.
  */
 function isDarkMode() {
-    return document.documentElement.getAttribute('data-theme') === 'dark';
+    const root = document.documentElement;
+    return root.getAttribute('data-theme') === 'dark' || root.classList.contains('dark');
 }

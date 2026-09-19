@@ -2,7 +2,7 @@ const App = {
     init() {
         Toast.init();
         Debug.init();
-        Appearance.init();    /* apply saved theme before anything else */
+        Appearance.init();    /* applies saved theme to <html> and <body> */
 
         state.chart = ChartFactory.createMain(document.getElementById('mainChart'));
 
@@ -13,51 +13,68 @@ const App = {
         Dashboard.updateLotBadge();
         Dashboard.setChartMode('color');
 
-        /* Apply dark axis colors if dark mode is active */
+        /* Apply theme-aware chart colors after the chart exists */
         ChartFactory.refreshTheme(state.chart);
 
         this.bindEvents();
         console.log('[App] Ready · points:', state.sensorData.length, '· theme:', state.appearance);
     },
 
+    /* Defensively bind every event so a missing element never breaks the app */
     bindEvents() {
-        document.getElementById('langSelect').addEventListener('change', e => {
+        const $ = id => document.getElementById(id);
+
+        const langSelect = $('langSelect');
+        if (langSelect) langSelect.addEventListener('change', e => {
             I18n.apply(e.target.value);
             Dashboard.update();
         });
 
-        document.getElementById('appearanceBtn').addEventListener('click', () => Appearance.toggle());
-        document.getElementById('debugBtn').addEventListener('click', () => Debug.toggle());
-        document.getElementById('debugCloseBtn').addEventListener('click', () => Debug.close());
+        const appearanceBtn = $('appearanceBtn');
+        if (appearanceBtn) appearanceBtn.addEventListener('click', () => Appearance.toggle());
 
-        document.getElementById('uploadBtn').addEventListener('click', () => {
-            document.getElementById('fileInput').click();
-        });
-        document.getElementById('fileInput').addEventListener('change', e => this.handleUpload(e));
+        const debugBtn = $('debugBtn');
+        if (debugBtn) debugBtn.addEventListener('click', () => Debug.toggle());
+        const debugCloseBtn = $('debugCloseBtn');
+        if (debugCloseBtn) debugCloseBtn.addEventListener('click', () => Debug.close());
 
-        document.getElementById('printBtn').addEventListener('click', () => Exporter.print());
-        document.getElementById('exportPngBtn').addEventListener('click', () => Exporter.exportPNG());
-        document.getElementById('exportPdfBtn').addEventListener('click', () => Exporter.exportPDF());
+        const uploadBtn = $('uploadBtn');
+        if (uploadBtn) uploadBtn.addEventListener('click', () => $('fileInput')?.click());
+        const fileInput = $('fileInput');
+        if (fileInput) fileInput.addEventListener('change', e => this.handleUpload(e));
 
-        document.getElementById('lotNumberInput').addEventListener('input', () => Dashboard.updateLotBadge());
+        const printBtn = $('printBtn');
+        if (printBtn) printBtn.addEventListener('click', () => Exporter.print());
+        const exportPngBtn = $('exportPngBtn');
+        if (exportPngBtn) exportPngBtn.addEventListener('click', () => Exporter.exportPNG());
+        const exportPdfBtn = $('exportPdfBtn');
+        if (exportPdfBtn) exportPdfBtn.addEventListener('click', () => Exporter.exportPDF());
+
+        const lotInput = $('lotNumberInput');
+        if (lotInput) lotInput.addEventListener('input', () => Dashboard.updateLotBadge());
 
         ['startYear', 'startMonth', 'startDay', 'startHour', 'startMinute',
             'endYear', 'endMonth', 'endDay', 'endHour', 'endMinute'].forEach(id => {
-                document.getElementById(id).addEventListener('input', Utils.debounce(() => Dashboard.update(), 200));
+                const el = $(id);
+                if (el) el.addEventListener('input', Utils.debounce(() => Dashboard.update(), 200));
             });
 
-        document.getElementById('fullResultBtn').addEventListener('click', () => Dashboard.showFullResult());
-        document.getElementById('last24hBtn').addEventListener('click', () => Dashboard.jumpToLast24h());
+        const fullBtn = $('fullResultBtn');
+        if (fullBtn) fullBtn.addEventListener('click', () => Dashboard.showFullResult());
+        const lastBtn = $('last24hBtn');
+        if (lastBtn) lastBtn.addEventListener('click', () => Dashboard.jumpToLast24h());
 
         ['minThreshold', 'maxThreshold'].forEach(id => {
-            document.getElementById(id).addEventListener('change', () => Dashboard.update());
+            const el = $(id);
+            if (el) el.addEventListener('change', () => Dashboard.update());
         });
 
-        document.getElementById('modeColorBtn').addEventListener('click', () => Dashboard.setChartMode('color'));
-        document.getElementById('modeMonoBtn').addEventListener('click', () => Dashboard.setChartMode('mono'));
+        const colorBtn = $('modeColorBtn');
+        if (colorBtn) colorBtn.addEventListener('click', () => Dashboard.setChartMode('color'));
+        const monoBtn = $('modeMonoBtn');
+        if (monoBtn) monoBtn.addEventListener('click', () => Dashboard.setChartMode('mono'));
 
-        /* Also listen to OS-level theme changes for auto-switching when no
-           preference is stored */
+        /* Auto follow the OS theme if no explicit preference was saved */
         if (window.matchMedia) {
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
                 try {

@@ -69,13 +69,11 @@ const Dashboard = {
     updateDuration() {
         const startVal = this.readStart();
         const endVal = this.readEnd();
-
         let text = '—';
         if (startVal && endVal) {
             const duration = Utils.formatDuration(startVal, endVal);
             if (duration) text = duration;
         }
-
         const summaryEl = document.getElementById('footerDurationVal');
         if (summaryEl) summaryEl.textContent = text;
     },
@@ -89,7 +87,6 @@ const Dashboard = {
 
     update() {
         if (state.sensorData.length === 0) return;
-
         const minThreshold = parseFloat(document.getElementById('minThreshold').value);
         const maxThreshold = parseFloat(document.getElementById('maxThreshold').value);
         const startVal = this.readStart();
@@ -123,14 +120,12 @@ const Dashboard = {
     setChartMode(mode) {
         if (mode !== 'color' && mode !== 'mono') return;
         state.chartMode = mode;
-
         const colorBtn = document.getElementById('modeColorBtn');
         const monoBtn = document.getElementById('modeMonoBtn');
         if (colorBtn && monoBtn) {
             colorBtn.classList.toggle('is-active', mode === 'color');
             monoBtn.classList.toggle('is-active', mode === 'mono');
         }
-
         ChartFactory.applyPalette(state.chart);
     }
 };

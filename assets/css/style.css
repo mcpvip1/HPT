@@ -39,8 +39,11 @@
 
 /* ================================================================
    Theme variables — dark
+   Applied via [data-theme="dark"] on <html> OR .dark class on <html> or <body>
    ================================================================ */
-[data-theme="dark"] {
+[data-theme="dark"],
+html.dark,
+body.dark {
     --bg-page: #0b1220;
     --bg-surface: #111827;
     --bg-surface-alt: #1a2436;
@@ -227,9 +230,7 @@ button:focus {
     }
 }
 
-/* ================================================================
-   Brand header
-   ================================================================ */
+/* Brand header */
 .brand-header {
     display: flex;
     align-items: center;
@@ -270,9 +271,7 @@ button:focus {
     letter-spacing: 0.04em;
 }
 
-/* ================================================================
-   Toolbar
-   ================================================================ */
+/* Toolbar */
 .toolbar {
     display: flex;
     flex-wrap: wrap;
@@ -531,9 +530,7 @@ button:focus {
     transform: translateY(0);
 }
 
-/* ================================================================
-   Report paper
-   ================================================================ */
+/* Report paper */
 .report-paper {
     background: var(--bg-surface);
     border: 1px solid var(--border);
@@ -624,9 +621,7 @@ button:focus {
     border-radius: 8px;
 }
 
-/* ================================================================
-   Chart card
-   ================================================================ */
+/* Chart card */
 .chart-card {
     width: 100%;
     background: var(--bg-surface);
@@ -784,9 +779,7 @@ button:focus {
     letter-spacing: 0.04em;
 }
 
-/* ================================================================
-   Side panel
-   ================================================================ */
+/* Side panel */
 .panel {
     background: var(--bg-surface);
     border: 1px solid var(--border-light);
@@ -853,7 +846,6 @@ button:focus {
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
 }
 
-/* Segmented picker */
 .seg-picker {
     background: var(--bg-surface-alt);
     border: 1px solid var(--border-light);
@@ -948,9 +940,7 @@ button:focus {
     margin-top: 1px;
 }
 
-/* ================================================================
-   Quick action buttons
-   ================================================================ */
+/* Quick actions */
 .quick-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1033,9 +1023,7 @@ button:focus {
     transform: translateY(0);
 }
 
-/* ================================================================
-   Tooltip
-   ================================================================ */
+/* Tooltip */
 #chartTooltip {
     position: absolute;
     pointer-events: none;
@@ -1085,9 +1073,7 @@ button:focus {
     color: #ef4444;
 }
 
-/* ================================================================
-   Toast
-   ================================================================ */
+/* Toast */
 .toast {
     position: fixed;
     bottom: 24px;
@@ -1121,9 +1107,7 @@ button:focus {
     border-color: #ef4444;
 }
 
-/* ================================================================
-   Debug panel
-   ================================================================ */
+/* Debug panel */
 .debug-panel {
     position: fixed;
     right: 12px;
@@ -1170,9 +1154,7 @@ button:focus {
     line-height: 1.5;
 }
 
-/* ================================================================
-   Print sheet — always light (for printing)
-   ================================================================ */
+/* Print sheet (always light for printing) */
 .print-sheet {
     position: fixed;
     left: -99999px;
@@ -1180,8 +1162,8 @@ button:focus {
     width: 1123px;
     height: 794px;
     padding: 24px;
-    background: #ffffff;
-    color: #000;
+    background: #ffffff !important;
+    color: #000 !important;
     font-family: var(--font-ui);
     box-sizing: border-box;
     z-index: -1;

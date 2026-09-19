@@ -7,7 +7,7 @@
     <title>EXCELLENT MEDICAL TECHNOLOGY (THAILAND) CO., LTD.</title>
     <link rel="icon" type="image/png" href="assets/images/logo.png">
 
-    <!-- Prevent flash of incorrect theme -->
+    <!-- Prevent flash of incorrect theme (FOUC) -->
     <script>
         (function () {
             try {
@@ -15,6 +15,7 @@
                 var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
                 if (saved === 'dark' || (!saved && prefersDark)) {
                     document.documentElement.setAttribute('data-theme', 'dark');
+                    document.documentElement.classList.add('dark');
                 }
             } catch (e) { }
         })();
@@ -31,7 +32,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
-    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- CSS with cache-buster -->
+    <link rel="stylesheet" href="assets/css/style.css?v=20260919">
 </head>
 
 <body class="min-h-screen p-4 sm:p-6 lg:p-8">
@@ -63,6 +65,7 @@
                         <option value="my">မြန်မာ</option>
                     </select>
                 </div>
+
                 <button id="appearanceBtn" class="toolbar__icon-btn" title="Appearance: Light / Dark"
                     aria-label="Toggle appearance">
                     <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -76,6 +79,7 @@
                         <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
                     </svg>
                 </button>
+
                 <button id="debugBtn" class="toolbar__icon-btn" title="Debug panel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -330,14 +334,15 @@
         </div>
     </section>
 
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/i18n.js"></script>
-    <script src="assets/js/utils.js"></script>
-    <script src="assets/js/parser.js"></script>
-    <script src="assets/js/chart.js"></script>
-    <script src="assets/js/dashboard.js"></script>
-    <script src="assets/js/exporter.js"></script>
-    <script src="assets/js/main.js"></script>
+    <!-- Scripts with cache-buster -->
+    <script src="assets/js/config.js?v=20260919"></script>
+    <script src="assets/js/i18n.js?v=20260919"></script>
+    <script src="assets/js/utils.js?v=20260919"></script>
+    <script src="assets/js/parser.js?v=20260919"></script>
+    <script src="assets/js/chart.js?v=20260919"></script>
+    <script src="assets/js/dashboard.js?v=20260919"></script>
+    <script src="assets/js/exporter.js?v=20260919"></script>
+    <script src="assets/js/main.js?v=20260919"></script>
 </body>
 
 </html>

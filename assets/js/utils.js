@@ -76,46 +76,62 @@ const Debug = {
 };
 
 /**
- * Appearance — light / dark theme manager.
- * Persists the choice in localStorage.
+ * Appearance — Light / Dark theme manager.
+ *
+ * Robustness features:
+ *   - Applies the theme to BOTH <html data-theme="dark"> AND <html class="dark"> AND <body class="dark">
+ *   - Persists the choice to localStorage
+ *   - Null-safe: never throws if elements are missing
+ *   - Global debug helper: type `debugAppearance()` in the browser console
  */
 const Appearance = {
     STORAGE_KEY: 'appearance',
 
-    /** Apply the given theme ('light' | 'dark') */
+    /** Apply a theme. Safe to call before DOM is ready. */
     apply(theme) {
-        state.appearance = theme;
+        state.appearance = theme === 'dark' ? 'dark' : 'light';
         const root = document.documentElement;
+        const body = document.body;
 
-        if (theme === 'dark') {
+        if (state.appearance === 'dark') {
             root.setAttribute('data-theme', 'dark');
+            root.classList.add('dark');
+            if (body) body.classList.add('dark');
         } else {
             root.removeAttribute('data-theme');
+            root.classList.remove('dark');
+            if (body) body.classList.remove('dark');
         }
 
-        try { localStorage.setItem(this.STORAGE_KEY, theme); } catch (e) { }
+        try { localStorage.setItem(this.STORAGE_KEY, state.appearance); } catch (e) { }
 
         /* Swap the sun / moon icons */
         const sun = document.getElementById('iconSun');
         const moon = document.getElementById('iconMoon');
         if (sun && moon) {
-            sun.style.display = theme === 'dark' ? 'none' : 'block';
-            moon.style.display = theme === 'dark' ? 'block' : 'none';
+            sun.style.display = state.appearance === 'dark' ? 'none' : 'block';
+            moon.style.display = state.appearance === 'dark' ? 'block' : 'none';
         }
 
-        /* Let the chart redraw with the correct axis colors */
-        if (state.chart) {
-            ChartFactory.refreshTheme(state.chart);
-        }
+        /* Refresh chart axis colors */
+        try {
+            if (state.chart && typeof ChartFactory !== 'undefined' && ChartFactory.refreshTheme) {
+                ChartFactory.refreshTheme(state.chart);
+            }
+        } catch (e) { }
+
+        console.log('[Appearance]', state.appearance,
+            '| html attr:', root.getAttribute('data-theme'),
+            '| html class:', root.className,
+            '| body class:', body ? body.className : '(no body)');
     },
 
-    /** Toggle between light and dark */
     toggle() {
         const next = state.appearance === 'dark' ? 'light' : 'dark';
         this.apply(next);
     },
 
-    /** Initialise from storage (or system preference) */
+    /** Initialise from storage (or OS preference on first visit). */
     init() {
         let theme = 'light';
         try {
@@ -125,4 +141,17 @@ const Appearance = {
         } catch (e) { }
         this.apply(theme);
     }
+};
+
+/* Debug helper — type `debugAppearance()` in the browser console */
+window.debugAppearance = function () {
+    let storage = '(unavailable)';
+    try { storage = localStorage.getItem('appearance'); } catch (e) { storage = 'ERR'; }
+    console.log({
+        state: state.appearance,
+        htmlAttr: document.documentElement.getAttribute('data-theme'),
+        htmlClass: document.documentElement.className,
+        bodyClass: document.body ? document.body.className : '(no body)',
+        storage: storage
+    });
 };

@@ -13,17 +13,12 @@ const Parser = {
 
     normalizeTime(raw) {
         if (raw == null || raw === '') return null;
-
-        if (raw instanceof Date && !isNaN(raw.getTime())) {
-            return this._formatLocal(raw);
-        }
-
+        if (raw instanceof Date && !isNaN(raw.getTime())) return this._formatLocal(raw);
         if (typeof raw === 'number' && raw > 20000 && raw < 80000) {
             const epoch = Date.UTC(1899, 11, 30);
             const d = new Date(epoch + raw * 86400000);
             if (!isNaN(d.getTime())) return this._formatUTC(d);
         }
-
         const s = String(raw).trim();
         if (!s) return null;
 
@@ -48,7 +43,6 @@ const Parser = {
         if (!isNaN(parsed.getTime()) && /\d{4}/.test(s)) {
             return this._formatLocal(parsed);
         }
-
         return null;
     },
 
@@ -83,7 +77,6 @@ const Parser = {
     detectColumnsByData(rows) {
         const maxCols = Math.max(...rows.map(r => r ? r.length : 0));
         if (maxCols === 0) return null;
-
         const timeScore = new Array(maxCols).fill(0);
         const tempScore = new Array(maxCols).fill(0);
 
@@ -103,12 +96,10 @@ const Parser = {
             for (let pc = 0; pc < maxCols; pc++) {
                 if (pc === tc) continue;
                 if (tempScore[pc] < 3) continue;
-                const score = Math.min(timeScore[tc], tempScore[pc]) * 3
-                    + timeScore[tc] + tempScore[pc];
+                const score = Math.min(timeScore[tc], tempScore[pc]) * 3 + timeScore[tc] + tempScore[pc];
                 if (score > best.score) best = { score, timeCol: tc, tempCol: pc };
             }
         }
-
         return best.timeCol !== -1 ? { ...best, headerIndex: -1 } : null;
     },
 
@@ -156,7 +147,6 @@ const Parser = {
 
     parse(rows) {
         if (!rows || rows.length === 0) return null;
-
         const metadata = this.extractMetadata(rows);
         const cols = this.detectColumns(rows);
         if (!cols) return null;
@@ -181,17 +171,9 @@ const Parser = {
 
         const firstParsed = parsed[0].time;
         const lastParsed = parsed[parsed.length - 1].time;
-        const useStart = (metadata.start && metadata.start >= firstParsed && metadata.start <= lastParsed)
-            ? metadata.start : firstParsed;
-        const useEnd = (metadata.end && metadata.end >= firstParsed && metadata.end <= lastParsed)
-            ? metadata.end : lastParsed;
+        const useStart = (metadata.start && metadata.start >= firstParsed && metadata.start <= lastParsed) ? metadata.start : firstParsed;
+        const useEnd = (metadata.end && metadata.end >= firstParsed && metadata.end <= lastParsed) ? metadata.end : lastParsed;
 
-        return {
-            data: parsed,
-            lot: metadata.lot,
-            start: useStart,
-            end: useEnd,
-            _detectedCols: cols
-        };
+        return { data: parsed, lot: metadata.lot, start: useStart, end: useEnd, _detectedCols: cols };
     }
 };

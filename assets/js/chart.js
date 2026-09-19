@@ -35,10 +35,9 @@ function currentPalette() { return PALETTES[state.chartMode] || PALETTES.color; 
 
 /* Theme-aware axis colors */
 function axisColors() {
-    if (isDarkMode()) {
-        return { axisText: '#cbd5e1', axisTextSoft: '#94a3b8' };
-    }
-    return { axisText: '#334155', axisTextSoft: '#475569' };
+    return isDarkMode()
+        ? { axisText: '#cbd5e1', axisTextSoft: '#94a3b8' }
+        : { axisText: '#334155', axisTextSoft: '#475569' };
 }
 
 const FONT = {
@@ -53,11 +52,7 @@ function formatXLabel(label) {
 }
 
 /**
- * X-axis tick callback.
- * GUARANTEES:
- *   - index 0 always shows the exact start date/time from the Excel file
- *   - the last index always shows the exact end date/time from the Excel file
- *   - intermediates are evenly spaced and never collide
+ * X-axis tick callback — first + last always from actual data.
  */
 function xTickCallback(maxLabels) {
     return function (value, index) {
@@ -67,20 +62,11 @@ function xTickCallback(maxLabels) {
 
         if (total === 0) return '';
         if (total === 1) return formatXLabel(labels[0]);
-
-        /* First tick — always the actual start */
         if (index === 0) return formatXLabel(labels[0]);
-
-        /* Last tick — always the actual end */
         if (index === total - 1) return formatXLabel(labels[total - 1]);
 
-        /* Compute step so visible labels ≈ maxLabels */
         const step = Math.max(1, Math.round((total - 1) / (maxLabels - 1)));
-
-        /* Only show labels at multiples of step */
         if (index % step !== 0) return '';
-
-        /* Skip any intermediate that would sit too close to the end */
         if (total - 1 - index < step * 0.6) return '';
 
         return formatXLabel(labels[index]);
@@ -130,7 +116,6 @@ const thresholdLinePlugin = {
             chart.options.plugins.thresholdLabels.fontSize) || 11;
         const minT = parseFloat(document.getElementById('minThreshold').value);
         const maxT = parseFloat(document.getElementById('maxThreshold').value);
-
         ctx.save();
         ctx.textBaseline = 'middle';
 
@@ -140,7 +125,6 @@ const thresholdLinePlugin = {
             ctx.moveTo(left, yMax); ctx.lineTo(right, yMax);
             ctx.lineWidth = 1.5; ctx.strokeStyle = pal.maxLine; ctx.stroke();
             ctx.setLineDash([]);
-
             const lt = `MAX ${maxT.toFixed(1)}°C`;
             ctx.font = `bold ${labelSize}px ui-monospace, monospace`;
             const tw = ctx.measureText(lt).width;
@@ -148,7 +132,6 @@ const thresholdLinePlugin = {
             const boxH = labelSize + 8;
             const boxX = left + 6;
             const boxY = yMax - boxH - 4;
-
             ctx.fillStyle = pal.maxLabelBg;
             roundRect(ctx, boxX, boxY, tw + padX * 2, boxH, boxH / 2); ctx.fill();
             ctx.strokeStyle = pal.maxLabelBorder; ctx.lineWidth = 1;
@@ -163,7 +146,6 @@ const thresholdLinePlugin = {
             ctx.moveTo(left, yMin); ctx.lineTo(right, yMin);
             ctx.lineWidth = 1.5; ctx.strokeStyle = pal.minLine; ctx.stroke();
             ctx.setLineDash([]);
-
             const lt = `MIN ${minT.toFixed(1)}°C`;
             ctx.font = `bold ${labelSize}px ui-monospace, monospace`;
             const tw = ctx.measureText(lt).width;
@@ -171,7 +153,6 @@ const thresholdLinePlugin = {
             const boxH = labelSize + 8;
             const boxX = left + 6;
             const boxY = yMin + 4;
-
             ctx.fillStyle = pal.minLabelBg;
             roundRect(ctx, boxX, boxY, tw + padX * 2, boxH, boxH / 2); ctx.fill();
             ctx.strokeStyle = pal.minLabelBorder; ctx.lineWidth = 1;
@@ -179,7 +160,6 @@ const thresholdLinePlugin = {
             ctx.fillStyle = pal.minLabelText;
             ctx.fillText(lt, boxX + padX, boxY + boxH / 2);
         }
-
         ctx.restore();
     }
 };
@@ -328,7 +308,6 @@ const ChartFactory = {
     createPrint(canvas, cssW, cssH) {
         canvas.style.width = cssW + 'px';
         canvas.style.height = cssH + 'px';
-
         const pal = currentPalette();
         return new Chart(canvas.getContext('2d'), {
             type: 'line',
@@ -406,8 +385,6 @@ const ChartFactory = {
     refreshTheme(chart) {
         if (!chart) return;
         const { axisText, axisTextSoft } = axisColors();
-
-        /* Rebuild the tick color objects */
         if (chart.options.scales.x && chart.options.scales.x.ticks) {
             chart.options.scales.x.ticks.color = axisText;
         }
@@ -417,7 +394,6 @@ const ChartFactory = {
         if (chart.options.scales.y && chart.options.scales.y.title) {
             chart.options.scales.y.title.color = axisTextSoft;
         }
-
         chart.update('none');
     }
 };
