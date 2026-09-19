@@ -64,6 +64,8 @@ const Exporter = {
         await Utils.sleep(500);
         await Utils.nextFrame();
 
+        /* html2canvas gets a white background regardless of dark mode —
+           the A4 report is always light for printing. */
         const canvas = await html2canvas(stage, {
             backgroundColor: '#ffffff',
             scale: 2,

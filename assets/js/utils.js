@@ -74,3 +74,55 @@ const Debug = {
     toggle() { if (this.panel) this.panel.classList.toggle('show'); },
     close() { if (this.panel) this.panel.classList.remove('show'); }
 };
+
+/**
+ * Appearance — light / dark theme manager.
+ * Persists the choice in localStorage.
+ */
+const Appearance = {
+    STORAGE_KEY: 'appearance',
+
+    /** Apply the given theme ('light' | 'dark') */
+    apply(theme) {
+        state.appearance = theme;
+        const root = document.documentElement;
+
+        if (theme === 'dark') {
+            root.setAttribute('data-theme', 'dark');
+        } else {
+            root.removeAttribute('data-theme');
+        }
+
+        try { localStorage.setItem(this.STORAGE_KEY, theme); } catch (e) { }
+
+        /* Swap the sun / moon icons */
+        const sun = document.getElementById('iconSun');
+        const moon = document.getElementById('iconMoon');
+        if (sun && moon) {
+            sun.style.display = theme === 'dark' ? 'none' : 'block';
+            moon.style.display = theme === 'dark' ? 'block' : 'none';
+        }
+
+        /* Let the chart redraw with the correct axis colors */
+        if (state.chart) {
+            ChartFactory.refreshTheme(state.chart);
+        }
+    },
+
+    /** Toggle between light and dark */
+    toggle() {
+        const next = state.appearance === 'dark' ? 'light' : 'dark';
+        this.apply(next);
+    },
+
+    /** Initialise from storage (or system preference) */
+    init() {
+        let theme = 'light';
+        try {
+            const saved = localStorage.getItem(this.STORAGE_KEY);
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            theme = saved === 'dark' || (!saved && prefersDark) ? 'dark' : 'light';
+        } catch (e) { }
+        this.apply(theme);
+    }
+};

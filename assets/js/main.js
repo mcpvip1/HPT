@@ -2,6 +2,7 @@ const App = {
     init() {
         Toast.init();
         Debug.init();
+        Appearance.init();    /* apply saved theme before anything else */
 
         state.chart = ChartFactory.createMain(document.getElementById('mainChart'));
 
@@ -12,8 +13,11 @@ const App = {
         Dashboard.updateLotBadge();
         Dashboard.setChartMode('color');
 
+        /* Apply dark axis colors if dark mode is active */
+        ChartFactory.refreshTheme(state.chart);
+
         this.bindEvents();
-        console.log('[App] Ready · points:', state.sensorData.length);
+        console.log('[App] Ready · points:', state.sensorData.length, '· theme:', state.appearance);
     },
 
     bindEvents() {
@@ -22,6 +26,7 @@ const App = {
             Dashboard.update();
         });
 
+        document.getElementById('appearanceBtn').addEventListener('click', () => Appearance.toggle());
         document.getElementById('debugBtn').addEventListener('click', () => Debug.toggle());
         document.getElementById('debugCloseBtn').addEventListener('click', () => Debug.close());
 
@@ -50,6 +55,18 @@ const App = {
 
         document.getElementById('modeColorBtn').addEventListener('click', () => Dashboard.setChartMode('color'));
         document.getElementById('modeMonoBtn').addEventListener('click', () => Dashboard.setChartMode('mono'));
+
+        /* Also listen to OS-level theme changes for auto-switching when no
+           preference is stored */
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                try {
+                    if (!localStorage.getItem('appearance')) {
+                        Appearance.apply(e.matches ? 'dark' : 'light');
+                    }
+                } catch (err) { }
+            });
+        }
     },
 
     async handleUpload(event) {

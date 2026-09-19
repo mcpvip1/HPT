@@ -30,5 +30,14 @@ const state = {
     printChart: null,
     language: 'en',
     lotNumber: '',
-    chartMode: 'color'
+    chartMode: 'color',
+    appearance: 'light'   /* 'light' | 'dark' */
 };
+
+/**
+ * Helper — checks whether dark mode is active right now.
+ * Used by Chart.js to pick the correct axis text/grid colors.
+ */
+function isDarkMode() {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
+}

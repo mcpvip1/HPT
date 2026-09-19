@@ -14,8 +14,7 @@ const PALETTES = {
         minLabelBorder: 'rgba(239, 68, 68, 0.55)',
         minLabelText: '#a01a1a',
         segIn: '#6366f1', segHigh: '#eab308', segLow: '#ef4444',
-        extremesMax: '#eab308', extremesMin: '#ef4444', extremeRing: '#ffffff',
-        axisText: '#334155', axisTextSoft: '#475569'
+        extremesMax: '#eab308', extremesMin: '#ef4444', extremeRing: '#ffffff'
     },
     mono: {
         line: '#111111', lineWidth: 2.2,
@@ -28,12 +27,19 @@ const PALETTES = {
         minLine: '#666666', minLabelBg: 'rgba(0, 0, 0, 0.05)',
         minLabelBorder: 'rgba(102, 102, 102, 0.40)', minLabelText: '#333333',
         segIn: '#111111', segHigh: '#000000', segLow: '#666666',
-        extremesMax: '#000000', extremesMin: '#666666', extremeRing: '#ffffff',
-        axisText: '#000000', axisTextSoft: '#333333'
+        extremesMax: '#000000', extremesMin: '#666666', extremeRing: '#ffffff'
     }
 };
 
 function currentPalette() { return PALETTES[state.chartMode] || PALETTES.color; }
+
+/* Theme-aware axis colors */
+function axisColors() {
+    if (isDarkMode()) {
+        return { axisText: '#cbd5e1', axisTextSoft: '#94a3b8' };
+    }
+    return { axisText: '#334155', axisTextSoft: '#475569' };
+}
 
 const FONT = {
     screen: { tick: 11, label: 10, title: 10 },
@@ -207,35 +213,34 @@ const extremesPlugin = {
     }
 };
 
-function buildXAxis(maxLabels, fontSize, color) {
+function buildXAxis(maxLabels, fontSize) {
+    const { axisText } = axisColors();
     return {
         grid: { display: false },
         border: { display: false },
         ticks: {
-            /* autoSkip MUST be false — we control exactly which ticks
-               are shown via the callback, guaranteeing the first
-               (start) and last (end) timestamps are always visible. */
             autoSkip: false,
             maxRotation: 0, minRotation: 0,
             padding: 12,
             font: { size: fontSize, family: 'ui-monospace, monospace', weight: '500' },
-            color: color,
+            color: axisText,
             callback: xTickCallback(maxLabels)
         }
     };
 }
 
-function buildYAxis(fontSize, titleSize, color) {
+function buildYAxis(fontSize, titleSize) {
+    const { axisTextSoft } = axisColors();
     return {
         grid: { display: false },
         border: { display: false },
         ticks: {
             font: { size: fontSize, family: 'ui-monospace, monospace', weight: '500' },
-            color: color, padding: 12, stepSize: 0.5,
+            color: axisTextSoft, padding: 12, stepSize: 0.5,
             callback: v => `${v}°`
         },
         title: {
-            display: true, text: 'Temperature (°C)', color: color,
+            display: true, text: 'Temperature (°C)', color: axisTextSoft,
             font: { size: titleSize, family: 'ui-monospace, monospace', weight: '600' },
             padding: { top: 6, bottom: 8 }
         }
@@ -313,8 +318,8 @@ const ChartFactory = {
                     thresholdLabels: { fontSize: FONT.screen.label }
                 },
                 scales: {
-                    x: buildXAxis(11, FONT.screen.tick, pal.axisText),
-                    y: buildYAxis(FONT.screen.tick, FONT.screen.title, pal.axisTextSoft)
+                    x: buildXAxis(11, FONT.screen.tick),
+                    y: buildYAxis(FONT.screen.tick, FONT.screen.title)
                 }
             }
         });
@@ -360,8 +365,29 @@ const ChartFactory = {
                     thresholdLabels: { fontSize: FONT.print.label }
                 },
                 scales: {
-                    x: buildXAxis(9, FONT.print.tick, pal.axisText),
-                    y: buildYAxis(FONT.print.tick, FONT.print.title, pal.axisTextSoft)
+                    /* Print sheet is always light — force light axis colors */
+                    x: {
+                        grid: { display: false }, border: { display: false },
+                        ticks: {
+                            autoSkip: false, maxRotation: 0, minRotation: 0, padding: 12,
+                            font: { size: FONT.print.tick, family: 'ui-monospace, monospace', weight: '500' },
+                            color: '#334155',
+                            callback: xTickCallback(9)
+                        }
+                    },
+                    y: {
+                        grid: { display: false }, border: { display: false },
+                        ticks: {
+                            font: { size: FONT.print.tick, family: 'ui-monospace, monospace', weight: '500' },
+                            color: '#475569', padding: 12, stepSize: 0.5,
+                            callback: v => `${v}°`
+                        },
+                        title: {
+                            display: true, text: 'Temperature (°C)', color: '#475569',
+                            font: { size: FONT.print.title, family: 'ui-monospace, monospace', weight: '600' },
+                            padding: { top: 6, bottom: 8 }
+                        }
+                    }
                 }
             }
         });
@@ -374,6 +400,25 @@ const ChartFactory = {
         chart.data.datasets[0].borderWidth = pal.lineWidth;
         chart.data.datasets[0].backgroundColor = this.gradient;
         chart.update();
+    },
+
+    /** Refresh the axis colors when the theme changes */
+    refreshTheme(chart) {
+        if (!chart) return;
+        const { axisText, axisTextSoft } = axisColors();
+
+        /* Rebuild the tick color objects */
+        if (chart.options.scales.x && chart.options.scales.x.ticks) {
+            chart.options.scales.x.ticks.color = axisText;
+        }
+        if (chart.options.scales.y && chart.options.scales.y.ticks) {
+            chart.options.scales.y.ticks.color = axisTextSoft;
+        }
+        if (chart.options.scales.y && chart.options.scales.y.title) {
+            chart.options.scales.y.title.color = axisTextSoft;
+        }
+
+        chart.update('none');
     }
 };
 
