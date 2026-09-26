@@ -244,8 +244,8 @@ button:focus {
 }
 
 .brand-header__logo {
-    width: 160px;
-    height: 160px;
+    width: 56px;
+    height: 56px;
     object-fit: contain;
     flex-shrink: 0;
 }
@@ -1351,8 +1351,8 @@ button:focus {
     }
 
     .brand-header__logo {
-        width: 160px;
-        height: 160px;
+        width: 56px;
+        height: 56px;
     }
 
     .report-meta {
